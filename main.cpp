@@ -1,8 +1,9 @@
 #include <iostream>
+#include <memory>
 
-#include "src/tape/Tape.h"
-#include "src/parser/CommandLineParser.h"
-#include "src/parser/EnvFileParser.h"
+#include "src/data/services/Tape.h"
+#include "src/data/services/CommandLineParser.h"
+#include "src/data/services/EnvFileParser.h"
 
 int main(int argc, char* argv[]) {
 
@@ -11,12 +12,10 @@ int main(int argc, char* argv[]) {
 
 		CommandLineParser arg_parser;
 		auto files = arg_parser.ParseCommandLine(argc, argv);
-	
-		std::cout << "input file: " << files.input_file_path_ << "\n";
-		std::cout << "output file: " << files.output_file_path_ << "\n";
-		std::cout << "env file: " << files.env_file_path_ << "\n";
 
-		Tape tape;
+		auto env_parser = std::make_shared<EnvFileParser>();
+		Tape tape(env_parser);
+		
 		tape.SetUpTape(files.env_file_path_);
 		tape.SortFile(files.input_file_path_, files.output_file_path_);
 

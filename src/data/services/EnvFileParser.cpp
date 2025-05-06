@@ -9,9 +9,9 @@
 namespace fs = std::filesystem;
 
 ConfigurationProperties EnvFileParser::ParseEnvFile(std::string_view path) {
-    auto file_path = fs::absolute(path);
-    std::cout << "file env: " << file_path << "\n";
+    auto file_path = GetAbsolutePath(path);
     std::ifstream in(file_path);
+
     if (!in.is_open()) {
         std::runtime_error("Can't read env file");
     }
@@ -27,9 +27,15 @@ ConfigurationProperties EnvFileParser::ParseEnvFile(std::string_view path) {
     return properties_;
 }
 
+std::string EnvFileParser::GetAbsolutePath(std::string_view path) {
+    return fs::absolute(path);
+}
+
 uint32_t EnvFileParser::GetNumberFromString(const std::string& line) {
     std::regex number_regex("^\\d+$");
-    if (std::regex_match(line.data(), number_regex)) {
+    const uint8_t kLengthOfInt = 9;
+    
+    if (std::regex_match(line.data(), number_regex) && line.size() <= kLengthOfInt) {
         return std::atoi(line.data());
     }
     throw std::invalid_argument("Not number in env file");
@@ -39,7 +45,6 @@ void EnvFileParser::SetValue(std::string_view key, std::string_view value) {
 
     std::string number_string(value);
     auto number = GetNumberFromString(number_string);
-    std::cout << "number: " << number << "\n";
 
     if (key == "MEMORY_LIMIT") {
         properties_.memory_limit_ = number;
@@ -86,7 +91,6 @@ void EnvFileParser::ParseLine(std::string_view line) {
     key = EraseWhitespaces(key);
     value = EraseWhitespaces(value);
 
-    std::cout << "key: " << key << " value: " << value << "\n";
     SetValue(key, value);
 
 }

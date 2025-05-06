@@ -34,11 +34,13 @@ NecessaryFiles CommandLineParser::ParseCommandLine(int argc, char *argv[])
     return files_;
 }
 
+std::string CommandLineParser::GetAbsolutePath(std::string_view path) {
+    return fs::absolute(path);
+}
+
 bool CommandLineParser::IsValidPath(std::string_view path) {
 
-    auto file_path = fs::absolute(path);
-
-    if (fs::exists(file_path) && fs::is_regular_file(file_path)) {
+    if (fs::exists(path) && fs::is_regular_file(path)) {
         return true;
     }
     return false;
@@ -46,17 +48,18 @@ bool CommandLineParser::IsValidPath(std::string_view path) {
 
 void CommandLineParser::SetValue(std::string_view flag, std::string_view value) {
 
+    auto absolute_path = GetAbsolutePath(value);
+
     if (!IsValidPath(value)) {
-        const std::string not_found_file = value.data();
-        throw std::runtime_error("File doesn't exist: " + not_found_file);
+        throw std::runtime_error("File doesn't exist: " + absolute_path);
     }
 
     if (flag == "-i" || flag == "--input-file") {
-        files_.input_file_path_ = value;
+        files_.input_file_path_ = absolute_path;
     } else if (flag == "-o" || flag == "--output-file") {
-        files_.output_file_path_ = value;
+        files_.output_file_path_ = absolute_path;
     } else if (flag == "-e" || flag == "--env") {
-        files_.env_file_path_ = value;
+        files_.env_file_path_ = absolute_path;
     } else {
         const std::string unsupported_flag = flag.data();
         throw std::invalid_argument("This flag isn't support " + unsupported_flag);

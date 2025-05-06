@@ -9,11 +9,10 @@
 
 namespace fs = std::filesystem;
 
-Tape::Tape(): cnt_batch_(0), parser_(), properties_() {}
+Tape::Tape(std::shared_ptr<EnvFileParserInterface> parser): cnt_batch_(0), parser_(parser), properties_() { }
 
-void Tape::SetUpTape(std::string_view env_file)
-{
-    properties_ = parser_.ParseEnvFile(env_file);
+void Tape::SetUpTape(std::string_view env_file) {
+    properties_ = parser_->ParseEnvFile(env_file);
 }
 
 void Tape::SortFile(std::string_view input_file, std::string_view output_file) {
@@ -21,9 +20,14 @@ void Tape::SortFile(std::string_view input_file, std::string_view output_file) {
     MergeBatches(output_file);
 }
 
+std::string Tape::GetAbsolutePath(std::string_view path) {
+    return fs::absolute(path);
+}
+
 void Tape::CreateBatchesFromInput(std::string_view input_file) {
 
-    std::ifstream in(input_file.data());
+    auto absolute_path = GetAbsolutePath(input_file);
+    std::ifstream in(absolute_path);
     if (!in.is_open()) {
         std::runtime_error("Can't read input file");
     }
@@ -53,7 +57,9 @@ void Tape::SortAndSaveBatch(std::vector<uint32_t> &batch_values, size_t batch_si
     std::sort(batch_values.begin(), batch_values.begin() + batch_size);
 
     std::string batch_file("tmp/batch" + std::to_string(cnt_batch_) + ".txt");
-    std::ofstream out(batch_file);
+    auto batch_path = GetAbsolutePath(batch_file);
+
+    std::ofstream out(batch_path);
 
     if (!out.is_open()) {
         std::runtime_error("Can't create and write to temporary file");
@@ -77,13 +83,12 @@ void Tape::MergeBatches(std::string_view output_file) {
     for (size_t i = 0; i < cnt_batch_; ++i) {
         
         std::string batch_file("tmp/batch" + std::to_string(i) + ".txt");
-        auto file_path = fs::absolute(batch_file);
-        std::cout << "temp file: " << file_path << "\n";
+        auto file_path = GetAbsolutePath(batch_file);
         batch_streams.emplace_back(file_path);
 
-        // if (!batch_streams[i].is_open()) {
-        //     std::runtime_error("Can't create and write to temporary file");
-        // }
+        if (!batch_streams[i].is_open()) {
+            std::runtime_error("Can't create and write to temporary file");
+        }
 
         uint32_t value;
         if (batch_streams[i] >> value) {
