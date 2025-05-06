@@ -1,0 +1,10 @@
+project(TapeSource)
+add_library(${PROJECT_NAME}
+    configuration/ConfigurationProperties.h 
+    configuration/ConfigurationProperties.cpp 
+    tape/Tape.h 
+    tape/Tape.cpp
+    tape/TapeInterface.h
+    parser/CommandLineParser.h 
+    parser/CommandLineParser.cpp
+)
