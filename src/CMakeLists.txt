@@ -1,10 +1,14 @@
 project(TapeSource)
 add_library(${PROJECT_NAME}
-    configuration/ConfigurationProperties.h 
-    configuration/ConfigurationProperties.cpp 
+    models/ConfigurationProperties.h 
+    models/ConfigurationProperties.cpp 
+    models/NecessaryFiles.h 
+    models/NecessaryFiles.cpp
     tape/Tape.h 
     tape/Tape.cpp
     tape/TapeInterface.h
     parser/CommandLineParser.h 
     parser/CommandLineParser.cpp
+    parser/EnvFileParser.h 
+    parser/EnvFileParser.cpp
 )

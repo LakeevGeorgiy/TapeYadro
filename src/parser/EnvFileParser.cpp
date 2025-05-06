@@ -2,16 +2,16 @@
 #include <iostream>
 #include <regex>
 #include <algorithm>
+#include <filesystem>
 
-#include "ConfigurationProperties.h"
+#include "EnvFileParser.h"
 
-ConfigurationProperties::ConfigurationProperties(std::string_view input_file, std::string_view output_file)
-    : input_file_(input_file)
-    , output_file_(output_file)
-{ }
+namespace fs = std::filesystem;
 
-void ConfigurationProperties::ParseEnvFile(std::string_view path) {
-    std::ifstream in(path.data());
+ConfigurationProperties EnvFileParser::ParseEnvFile(std::string_view path) {
+    auto file_path = fs::absolute(path);
+    std::cout << "file env: " << file_path << "\n";
+    std::ifstream in(file_path);
     if (!in.is_open()) {
         std::runtime_error("Can't read env file");
     }
@@ -24,9 +24,10 @@ void ConfigurationProperties::ParseEnvFile(std::string_view path) {
     if (!in.eof()) {
         throw std::runtime_error("Not all env file was read");
     }
+    return properties_;
 }
 
-uint32_t ConfigurationProperties::GetNumberFromString(const std::string& line) {
+uint32_t EnvFileParser::GetNumberFromString(const std::string& line) {
     std::regex number_regex("^\\d+$");
     if (std::regex_match(line.data(), number_regex)) {
         return std::atoi(line.data());
@@ -34,29 +35,29 @@ uint32_t ConfigurationProperties::GetNumberFromString(const std::string& line) {
     throw std::invalid_argument("Not number in env file");
 }
 
-void ConfigurationProperties::SetValue(std::string_view key, std::string_view value) {
+void EnvFileParser::SetValue(std::string_view key, std::string_view value) {
 
     std::string number_string(value);
     auto number = GetNumberFromString(number_string);
     std::cout << "number: " << number << "\n";
 
     if (key == "MEMORY_LIMIT") {
-        memory_limit_ = number;
+        properties_.memory_limit_ = number;
     } else if (key == "READ_LATENCY") {
-        read_latency_ = number;
+        properties_.read_latency_ = number;
     } else if (key == "WRITE_LATENCY") {
-        write_latency_ = number;
+        properties_.write_latency_ = number;
     } else if (key == "REWIND_LATENCY") {
-        rewind_latency_ = number;
+        properties_.rewind_latency_ = number;
     } else if (key == "SHIFT_LATENCY") {
-        shift_latency_ = number;
+        properties_.shift_latency_ = number;
     } else {
         std::string not_supported_key(key);
         throw std::invalid_argument("This key isn't support in env file: " + not_supported_key);
     }
 }
 
-std::string_view ConfigurationProperties::EraseWhitespaces(std::string_view line) {
+std::string_view EnvFileParser::EraseWhitespaces(std::string_view line) {
 
     auto pred = [](char symbol){
         return std::isspace(symbol);
@@ -72,7 +73,7 @@ std::string_view ConfigurationProperties::EraseWhitespaces(std::string_view line
     return (start < end) ? std::string_view(start, end - start) : std::string_view();
 }
 
-void ConfigurationProperties::ParseLine(std::string_view line) {
+void EnvFileParser::ParseLine(std::string_view line) {
 
     auto delimeter_index = line.find("=");
     if (delimeter_index >= line.size()) {
