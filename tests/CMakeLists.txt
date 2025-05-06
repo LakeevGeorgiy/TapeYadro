@@ -1,4 +1,4 @@
-project(Server_test)
+project(TapeYadroTests)
 include(FetchContent)
 
 FetchContent_Declare(
