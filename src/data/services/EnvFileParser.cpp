@@ -62,6 +62,11 @@ void EnvFileParser::SetValue(std::string_view key, std::string_view value) {
     }
 }
 
+std::string_view EnvFileParser::ErasePrefixWhitespaces(std::string_view line) {
+    while (std::isspace(line[0])) line.remove_prefix(1);
+    return line;
+}
+
 std::string_view EnvFileParser::EraseWhitespaces(std::string_view line) {
 
     auto pred = [](char symbol){
@@ -79,6 +84,11 @@ std::string_view EnvFileParser::EraseWhitespaces(std::string_view line) {
 }
 
 void EnvFileParser::ParseLine(std::string_view line) {
+
+    line = ErasePrefixWhitespaces(line);
+    if (line.empty() || line[0] == '#') {
+        return;
+    }
 
     auto delimeter_index = line.find("=");
     if (delimeter_index >= line.size()) {

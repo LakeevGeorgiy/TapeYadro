@@ -11,8 +11,6 @@ public:
     uint32_t write_latency_;
     uint32_t rewind_latency_;
     uint32_t shift_latency_;
-    std::string input_file_;
-    std::string output_file_;
 
 public:
 
