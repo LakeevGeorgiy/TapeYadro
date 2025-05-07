@@ -6,4 +6,6 @@ class CommandLineParserInterface {
 public:
 
     virtual NecessaryFiles ParseCommandLine(int argc, char* argv[]) = 0;
+
+    virtual ~CommandLineParserInterface() = default;
 };

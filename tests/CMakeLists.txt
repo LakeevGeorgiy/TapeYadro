@@ -14,6 +14,7 @@ enable_testing()
 add_executable(
         ${PROJECT_NAME}
         CmdLineParserTests.cpp
+        EnvFileParserTests.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 

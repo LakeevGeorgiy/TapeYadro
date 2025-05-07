@@ -17,6 +17,7 @@ public:
 
     CommandLineParser();
     
+    
     NecessaryFiles ParseCommandLine(int argc, char* argv[]) override;
 
 private:
