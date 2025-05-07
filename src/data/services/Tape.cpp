@@ -18,6 +18,7 @@ void Tape::SetUpTape(std::string_view env_file) {
 void Tape::SortFile(std::string_view input_file, std::string_view output_file) {
     CreateBatchesFromInput(input_file);
     MergeBatches(output_file);
+    ClearTempDirectory();
 }
 
 std::string Tape::GetAbsolutePath(std::string_view path) {
@@ -121,4 +122,14 @@ void Tape::MergeBatches(std::string_view output_file) {
     }
 
     out.close();
+}
+
+void Tape::ClearTempDirectory() {
+    for (size_t i = 0; i < cnt_batch_; ++i) {
+        
+        std::string batch_file("tmp/batch" + std::to_string(i) + ".txt");
+        auto file_path = GetAbsolutePath(batch_file);
+        fs::remove(file_path);
+        
+    }
 }

@@ -15,6 +15,7 @@ add_executable(
         ${PROJECT_NAME}
         CmdLineParserTests.cpp
         EnvFileParserTests.cpp
+        TapeTests.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} 

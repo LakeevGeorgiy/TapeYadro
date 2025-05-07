@@ -25,5 +25,6 @@ private:
     void CreateBatchesFromInput(std::string_view input_file);
     void SortAndSaveBatch(std::vector<uint32_t>& batch_values, size_t batch_size);
     void MergeBatches(std::string_view output_file);
+    void ClearTempDirectory();
 
 };
